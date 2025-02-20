@@ -1,19 +1,22 @@
 // Pages/Home/HeroSection.tsx
 import { motion } from "framer-motion";
+import SearchBar from "@/Components/SearchBar/SearchBar";
+import { memo } from "react";
 
 interface HeroSectionProps {
-  searchQuery?: string | null;
-  onSearchChange?: (value: string) => void;
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
 }
 
 const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
   return (
-    <div className="relative  mb-20">
-      <div 
+    <div className="relative  mb-10">
+      <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7')",
-          filter: "brightness(0.7)"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7')",
+          filter: "brightness(0.7)",
         }}
       />
 
@@ -36,27 +39,26 @@ const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
             Discover premium tech products at unbeatable prices
           </p>
         </motion.div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="w-full max-w-2xl mx-auto px-4"
         >
-          <div className="backdrop-blur-xl bg-white/10 dark:bg-black/20 rounded-2xl p-4 shadow-lg">
-            <div className="h-12 rounded-lg bg-white/20 dark:bg-black/30 flex items-center justify-center">
-              {/* <span className="text-gray-300">Search functionality coming soon...</span> */}
-            </div>
-            {/* <SearchBar value={searchQuery} onChange={onSearchChange} /> */}
-            {searchQuery && (
+          <div className="backdrop-blur-xl bg-white/10 dark:bg-black/20 rounded-2xl p-4">
+            <SearchBar
+              inputValue={searchQuery}
+              onInputChange={onSearchChange}
+              placeholder="Search for laptops, headphones, cameras..."
+            />
+            {searchQuery.trim() && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-4 text-sm text-gray-200"
               >
-                <p>
-                  Showing results for "{searchQuery}"
-                </p>
+                <p>Showing results for "{searchQuery}"</p>
               </motion.div>
             )}
           </div>
@@ -66,4 +68,4 @@ const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
   );
 };
 
-export default HeroSection;
+export default memo(HeroSection);

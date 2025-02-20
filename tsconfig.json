@@ -45,7 +45,10 @@
       "@Components/*": ["src/Components/*"],
       "@Pages/*": ["src/Pages/*"],
       "@utils/*": ["src/utils/*"],
-      "@Router/*": ["src/Router/*"]
+      "@Router/*": ["src/Router/*"],
+      "@Data/*": ["src/Data/*"],
+      "@Redux/*": ["src/Redux/*"],
+      "@Services/*": ["src/Services/*"]
     }
   },
   "include": [

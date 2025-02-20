@@ -19,6 +19,7 @@
     "@mui/icons-material": "^6.4.5",
     "@mui/lab": "^5.0.0-alpha.173",
     "@mui/material": "^5.16.7",
+    "lucide-react": "^0.475.0",
     "mini-svg-data-uri": "^1.4.4",
     "motion": "^12.1.0",
     "node": "^23.7.0",
