@@ -164,7 +164,7 @@ export default function PrimarySearchAppBar() {
               </motion.div>
 
               <motion.div whileHover="hover" variants={iconVariants}>
-                <Tooltip title="Add To Cart">
+                <Tooltip title="Cart">
                   <IconButton size="large" color="inherit">
                     <Badge badgeContent={17} color="error">
                       <ShoppingCartIcon />
