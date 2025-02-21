@@ -1,40 +1,42 @@
-import HeroSection from "./HeroSection";
-import { useState } from "react";
-import Category from "@/Components/Category/Category";
+import { Suspense, lazy, useState, useCallback } from "react";
+import ProgressBars from "../../Components/Loader/Loader";
+const Category = lazy(() => import("@/Components/Category/Category"));
+const HeroSection = lazy(() => import("./HeroSection"));
+const ProductList = lazy(() => import("./ProductList"));
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const handleCategoryClick = (value: string) => {
+  const handleCategoryClick = useCallback((value: string) => {
     setSelectedCategory(value);
-  };
+  }, []); // No dependencies since it only uses setState
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <HeroSection searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <Suspense fallback={<ProgressBars />}>
+        <HeroSection
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+      </Suspense>
 
       <div className="max-w-7xl mx-auto px-4 py-8 md:px-6 lg:px-8">
-        <Category
-          selectedCategory={selectedCategory}
-          onCategoryClick={handleCategoryClick}
-        />
+        <Suspense fallback={<ProgressBars />}>
+          <Category
+            selectedCategory={selectedCategory}
+            onCategoryClick={handleCategoryClick}
+          />
+        </Suspense>
+
+        <Suspense fallback={<ProgressBars />}>
+          <ProductList />
+        </Suspense>
       </div>
-
-      {/* <div className="max-w-7xl mx-auto px-4 py-8 md:px-6 lg:px-8">
-        <Category
-          selectedCategory={selectedCategory}
-          onCategoryClick={handleCategoryClick}
-        />
-
-        <Product
-          products={paginatedProducts}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div> */}
     </div>
   );
 };
 
 export default Home;
+
+//  Waterfall Prevention Separate Suspense boundaries allow components to load in parallel rather than sequentially:
