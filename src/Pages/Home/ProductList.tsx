@@ -121,7 +121,7 @@ export default memo(ProductList);
 
 
 
-// Key differences:
+//                       Key differences:
 
 // currentTarget always points to where the event handler is attached (grid)
 
@@ -129,7 +129,7 @@ export default memo(ProductList);
 
 // closest() searches up from the target element to find the nearest ancestor matching the selector
 
-// When to use each:
+//                    When to use each:
 
 // Use currentTarget when you need the element where the event handler is attached
 

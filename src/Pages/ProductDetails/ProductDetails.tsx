@@ -1,28 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import ButtonBase from "@Components/Button/Button";
 import { ShoppingCart, ArrowLeft, Plus, Minus } from "lucide-react";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../utils/cn";
+import NotFoundView from "../../NotFound/NotFound";
+import { categoryItems } from "@Data/Data";
 
-// Product data
-const mockProducts = [
-  {
-    id: 1,
-    name: "MacBook Pro M2",
-    price: 1499.99,
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-    description: "Apple MacBook Pro with M2 chip, 16GB RAM, 512GB SSD",
-    category: "Laptops",
-    details: [
-      "15-inch Retina Display",
-      "32GB RAM",
-      "1TB SSD Storage",
-      "12-hour battery life",
-    ],
-  },
-  // ... other products
-];
+const { products } = categoryItems;
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -30,13 +15,19 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [isImageHovered, setIsImageHovered] = useState(false);
 
-  const product = mockProducts.find((p) => p.id === Number(id));
+  // NOTE Here, we did not put  products as a dependency in useMemo Because :
+  // 1. products is likely coming from outside the component (like a constant or imported data)
+  // 2. Changes to outer scope values don't trigger re-renders
+  // 3. Therefore, including products in the dependency array is unnecessary
+  const product = useMemo(() => {
+    return products.find((p) => p.id === Number(id));
+  }, [id]);
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-gray-600">Product not found</p>
-      </div>
+      <p className="text-lg text-gray-600">
+        <NotFoundView />
+      </p>
     );
   }
 
@@ -50,7 +41,21 @@ const ProductDetails = () => {
   };
 
   const decreaseQuantity = () => {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+    // Math.max(1, prev - 1) is doing two things: [1]
+    // First, it subtracts 1 from the previous quantity ( prev - 1)
+    // Then it compares that result with 1 and returns the larger value
+    // The key purpose is to prevent the quantity from going below 1.
+
+    setQuantity((prev) => Math.max(1, prev - 1));
+
+    // If current quantity is 3:
+    // Math.max(1, 3 - 1) // Returns 2
+
+    // If current quantity is 2:
+    // Math.max(1, 2 - 1) // Returns 1
+
+    // If current quantity is 1:
+    // Math.max(1, 1 - 1) // Returns 1 (prevents going to 0)
   };
 
   // Animation variants
@@ -105,8 +110,8 @@ const ProductDetails = () => {
               onHoverEnd={() => setIsImageHovered(false)}
             >
               <motion.img
-                src={product.image}
-                alt={product.name}
+                src={product?.image}
+                alt={product?.name}
                 className="h-full w-full object-cover object-center"
                 initial={{ scale: 1.2 }}
                 animate={{ scale: 1 }}
@@ -130,7 +135,7 @@ const ProductDetails = () => {
               transition={{ delay: 0.2 }}
               className="text-4xl font-bold text-gray-900"
             >
-              {product.name}
+              {product?.name}
             </motion.h1>
 
             {/* Price */}
@@ -140,7 +145,7 @@ const ProductDetails = () => {
               transition={{ delay: 0.3 }}
               className="text-2xl font-semibold text-purple-600"
             >
-              ${product.price.toFixed(2)}
+              ${product?.price.toFixed(2)}
             </motion.p>
 
             {/* Description */}
@@ -150,7 +155,7 @@ const ProductDetails = () => {
               transition={{ delay: 0.4 }}
               className="text-lg leading-relaxed text-gray-600 bg-purple-50 p-4 rounded-lg"
             >
-              {product.description}
+              {product?.description}
             </motion.p>
 
             {/* Features Section */}
@@ -169,7 +174,7 @@ const ProductDetails = () => {
                 Features
               </motion.h3>
               <ul className="space-y-4">
-                {product.details.map((detail, index) => (
+                {product?.details.map((detail, index) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -20, scale: 0.95 }}
@@ -231,7 +236,17 @@ const ProductDetails = () => {
                 >
                   <Minus className="h-4 w-4" />
                 </ButtonBase>
-                <span className="w-8 text-center font-medium">{quantity}</span>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={quantity}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="w-8 text-center font-medium"
+                  >
+                    {quantity}
+                  </motion.span>
+                </AnimatePresence>
                 <ButtonBase
                   variant="text"
                   size="small"
@@ -253,7 +268,18 @@ const ProductDetails = () => {
                   size="large"
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart ({quantity})
+                  Add to Cart
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={quantity}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="w-8 text-center font-medium"
+                    >
+                      {quantity}
+                    </motion.span>
+                  </AnimatePresence>
                 </ButtonBase>
               </motion.div>
             </motion.div>
@@ -269,7 +295,7 @@ const ProductDetails = () => {
                 <div className="text-sm text-gray-500">
                   <p>Category</p>
                   <p className="font-medium text-gray-900">
-                    {product.category}
+                    {product?.category}
                   </p>
                 </div>
                 <div className="text-sm text-gray-500">
