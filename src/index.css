@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 
 html,
 body {
@@ -16,12 +18,24 @@ body {
   flex-direction: column;
 }
 
-/* Add if you want to hide scrollbar but keep functionality */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Webkit browsers (Chrome, Safari, newer versions of Opera) */
+::-webkit-scrollbar {
+  width: 5px; /* Vertical scrollbar width */
+  height: 5px; /* Horizontal scrollbar height */
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* Scrollbar Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light grey background */
+}
+
+/* Scrollbar Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; /* Grey scrollbar handle */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker grey when hovering */
 }
