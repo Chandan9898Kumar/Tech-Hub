@@ -6,7 +6,7 @@ const ProductList = lazy(() => import("./ProductList"));
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const handleCategoryClick = useCallback((value: string) => {
     setSelectedCategory(value);
@@ -30,7 +30,7 @@ const Home = () => {
         </Suspense>
 
         <Suspense fallback={<ProgressBars />}>
-          <ProductList />
+          <ProductList selectedCategory={selectedCategory} />
         </Suspense>
       </div>
     </div>
