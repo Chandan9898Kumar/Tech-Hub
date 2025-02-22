@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
-import store from './Redux/Store.tsx';
+import store from "./Redux/Store.tsx";
 // Get root element and handle potential null case
 const rootElement = document.getElementById("root");
 

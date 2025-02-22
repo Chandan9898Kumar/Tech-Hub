@@ -1,11 +1,13 @@
-import { useParams, useNavigate } from "react-router-dom";
 import ButtonBase from "@Components/Button/Button";
-import { ShoppingCart, ArrowLeft, Plus, Minus } from "lucide-react";
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "../../utils/cn";
-import NotFoundView from "../../NotFound/NotFound";
 import { categoryItems } from "@Data/Data";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import NotFoundView from "../../NotFound/NotFound";
+import { addItemToCart } from "../../Redux/AddToCart/AddToCart";
+import { useAppDispatch } from "../../Redux/Store";
+import { cn } from "../../utils/cn";
 
 const { products } = categoryItems;
 
@@ -14,6 +16,8 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [isImageHovered, setIsImageHovered] = useState(false);
+
+  const dispatch = useAppDispatch();
 
   // NOTE Here, we did not put  products as a dependency in useMemo Because :
   // 1. products is likely coming from outside the component (like a constant or imported data)
@@ -32,8 +36,7 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
-    // Implement your add to cart logic here
-    console.log("Adding to cart:", { product, quantity });
+    dispatch(addItemToCart({ ...product, quantity }));
   };
 
   const increaseQuantity = () => {

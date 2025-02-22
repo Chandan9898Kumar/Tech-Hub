@@ -14,11 +14,14 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
 import { motion } from "framer-motion";
 import Tooltip from "@mui/material/Tooltip";
+import { useAppSelector } from "../../Redux/Store";
+
 export default function PrimarySearchAppBar() {
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =React.useState<null | HTMLElement>(null);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  const itemAddedToCart = useAppSelector((state) => state.cart.totalQuantity);
+  
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
@@ -55,10 +58,10 @@ export default function PrimarySearchAppBar() {
       <MenuItem>
         <IconButton
           size="large"
-          aria-label="show 17 new notifications"
+          aria-label={`show ${itemAddedToCart} new notifications`}
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
+          <Badge badgeContent={itemAddedToCart} color="error">
             <ShoppingCartIcon />
           </Badge>
         </IconButton>
@@ -166,7 +169,7 @@ export default function PrimarySearchAppBar() {
               <motion.div whileHover="hover" variants={iconVariants}>
                 <Tooltip title="Cart">
                   <IconButton size="large" color="inherit">
-                    <Badge badgeContent={17} color="error">
+                    <Badge badgeContent={itemAddedToCart} color="error">
                       <ShoppingCartIcon />
                     </Badge>
                   </IconButton>
