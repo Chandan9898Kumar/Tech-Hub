@@ -46,15 +46,17 @@ const Cart = createSlice({
         state.items.push(newItem);
       }
 
-      state.totalQuantity = state.items.reduce(
-        (acc, currentItem) => acc + currentItem.quantity,
-        0
+      // Calculate both totals in a single iteration
+      const totals = state.items.reduce(
+        (acc, item) => ({
+          quantity: acc.quantity + item.quantity,
+          amount: acc.amount + item.price * item.quantity,
+        }),
+        { quantity: 0, amount: 0 }
       );
 
-      state.totalAmount = state.items.reduce(
-        (acc, currentItem) => acc + currentItem.price * currentItem.quantity,
-        0
-      );
+      state.totalQuantity = totals.quantity;
+      state.totalAmount = totals.amount;
     },
 
     updateCartQuantity(state, action: PayloadAction<QuantPayloads>) {
@@ -62,28 +64,34 @@ const Cart = createSlice({
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {
         existingItem.quantity = quantity;
-        state.totalQuantity = state.items.reduce(
-          (acc, currentItem) => acc + currentItem.quantity,
-          0
+        // Single reduce operation for both calculations
+        const totals = state.items.reduce(
+          (acc, item) => ({
+            quantity: acc.quantity + item.quantity,
+            amount: acc.amount + item.price * item.quantity,
+          }),
+          { quantity: 0, amount: 0 }
         );
-        state.totalAmount = state.items.reduce(
-          (acc, currentItem) => acc + currentItem.price * currentItem.quantity,
-          0
-        );
+
+        state.totalQuantity = totals.quantity;
+        state.totalAmount = totals.amount;
       }
     },
 
     removeCartItem(state, action: PayloadAction<id>) {
       const id = action.payload;
       state.items = state.items.filter((item) => item.id !== id);
-      state.totalAmount = state.items.reduce(
-        (acc, currentItem) => acc + currentItem.price * currentItem.quantity,
-        0
+      // Single reduce operation for both calculations
+      const totals = state.items.reduce(
+        (acc, item) => ({
+          quantity: acc.quantity + item.quantity,
+          amount: acc.amount + item.price * item.quantity,
+        }),
+        { quantity: 0, amount: 0 }
       );
-      state.totalQuantity = state.items.reduce(
-        (acc, currentItem) => acc + currentItem.quantity,
-        0
-      );
+
+      state.totalQuantity = totals.quantity;
+      state.totalAmount = totals.amount;
     },
   },
 });
