@@ -15,12 +15,14 @@ import LocalMallIcon from "@mui/icons-material/LocalMall";
 import { motion } from "framer-motion";
 import Tooltip from "@mui/material/Tooltip";
 import { useAppSelector } from "../../Redux/Store";
+import { useNavigate } from "react-router-dom";
 
 export default function PrimarySearchAppBar() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =React.useState<null | HTMLElement>(null);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const itemAddedToCart = useAppSelector((state) => state.cart.totalQuantity);
+  const navigate= useNavigate()
   
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -60,6 +62,7 @@ export default function PrimarySearchAppBar() {
           size="large"
           aria-label={`show ${itemAddedToCart} new notifications`}
           color="inherit"
+          onClick={()=> navigate('/cart')}
         >
           <Badge badgeContent={itemAddedToCart} color="error">
             <ShoppingCartIcon />
@@ -168,7 +171,7 @@ export default function PrimarySearchAppBar() {
 
               <motion.div whileHover="hover" variants={iconVariants}>
                 <Tooltip title="Cart">
-                  <IconButton size="large" color="inherit">
+                  <IconButton size="large" color="inherit" onClick={()=> navigate('/cart')}>
                     <Badge badgeContent={itemAddedToCart} color="error">
                       <ShoppingCartIcon />
                     </Badge>

@@ -14,8 +14,8 @@ const { products } = categoryItems;
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [quantity, setQuantity] = useState(1);
-  const [isImageHovered, setIsImageHovered] = useState(false);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [isImageHovered, setIsImageHovered] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
 

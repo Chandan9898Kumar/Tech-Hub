@@ -14,35 +14,82 @@ interface PayloadProps {
 interface CartState {
   items: PayloadProps[];
   totalQuantity: number;
+  totalAmount: number;
 }
+
+interface QuantPayloads {
+  id: number;
+  quantity: number;
+}
+
+type id = number;
 
 const initialState: CartState = {
   items: [],
   totalQuantity: 0,
+  totalAmount: 0,
 };
 
 const Cart = createSlice({
   name: "addToCart",
   initialState: initialState,
   reducers: {
+    // Here we don't need to explicitly specify void as the return type. This code appears to be a Redux reducer function using Redux Toolkit, and these reducer functions implicitly return void since they directly mutate the state using Immer (which Redux Toolkit uses under the hood).
+    // TypeScript will automatically infer the return type as void since there's no explicit return statement.
     addItemToCart(state, action: PayloadAction<PayloadProps>) {
       const newItem = action.payload;
       const existingItem = state.items.find((item) => item.id === newItem.id);
 
       if (existingItem) {
-        existingItem.quantity = newItem.quantity;
+        existingItem.quantity += newItem.quantity;
       } else {
         state.items.push(newItem);
       }
 
-      state.totalQuantity = state.items.length
-        ? state.items.reduce((acc, curr) => acc + curr.quantity, 0)
-        : 0;
+      state.totalQuantity = state.items.reduce(
+        (acc, currentItem) => acc + currentItem.quantity,
+        0
+      );
+
+      state.totalAmount = state.items.reduce(
+        (acc, currentItem) => acc + currentItem.price * currentItem.quantity,
+        0
+      );
+    },
+
+    updateCartQuantity(state, action: PayloadAction<QuantPayloads>) {
+      const { id, quantity } = action.payload;
+      const existingItem = state.items.find((item) => item.id === id);
+      if (existingItem) {
+        existingItem.quantity = quantity;
+        state.totalQuantity = state.items.reduce(
+          (acc, currentItem) => acc + currentItem.quantity,
+          0
+        );
+        state.totalAmount = state.items.reduce(
+          (acc, currentItem) => acc + currentItem.price * currentItem.quantity,
+          0
+        );
+      }
+    },
+
+    removeCartItem(state, action: PayloadAction<id>) {
+      const id = action.payload;
+      state.items = state.items.filter((item) => item.id !== id);
+      state.totalAmount = state.items.reduce(
+        (acc, currentItem) => acc + currentItem.price * currentItem.quantity,
+        0
+      );
+      state.totalQuantity = state.items.reduce(
+        (acc, currentItem) => acc + currentItem.quantity,
+        0
+      );
     },
   },
 });
 
-export const { addItemToCart } = Cart.actions;
+export const { addItemToCart, updateCartQuantity, removeCartItem } =
+  Cart.actions;
 // This is the action creator function that will be used to dispatch actions to the Redux store.
 export default Cart.reducer;
 // This is the reducer function that will be used to update the state in the Redux store.
