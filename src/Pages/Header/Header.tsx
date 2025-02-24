@@ -17,7 +17,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useAppSelector } from "../../Redux/Store";
 import { useNavigate } from "react-router-dom";
 
-export default function PrimarySearchAppBar() {
+export default function Header() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =React.useState<null | HTMLElement>(null);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 

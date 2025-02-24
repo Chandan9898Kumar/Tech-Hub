@@ -1,11 +1,18 @@
-import { memo, FC } from "react";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { IconButton, Typography } from "@material-tailwind/react";
-import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
-
+import { AnimatePresence, motion } from "framer-motion";
+import { FC, memo } from "react";
 const Style = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+} as const;
+
+const StyleDiv = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  margin: "20px auto",
 } as const;
 
 interface PaginationProps {
@@ -20,20 +27,20 @@ const Pagination: FC<PaginationProps> = ({
   activePage,
   onPageChange,
 }) => {
-  const next = ():void => {
+  const next = (): void => {
     if (activePage <= 10) {
       onPageChange(activePage + 1);
     }
   };
 
-  const prev = ():void => {
+  const prev = (): void => {
     if (activePage >= 1) {
       onPageChange(activePage - 1);
     }
   };
 
   return (
-    <div className="flex items-center gap-8" style={Style}>
+    <div className="flex items-center gap-8" style={StyleDiv}>
       <IconButton
         size="sm"
         variant="outlined"
@@ -53,8 +60,21 @@ const Pagination: FC<PaginationProps> = ({
         onPointerEnterCapture={() => {}}
         onPointerLeaveCapture={() => {}}
       >
-        Page <strong className="text-gray-900">{activePage}</strong> of{" "}
-        <strong className="text-gray-900">{totalPage}</strong>
+        Page{" "}
+        <strong className="text-gray-900">
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={activePage}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="w-8 text-center font-medium"
+            >
+              {activePage}
+            </motion.span>
+          </AnimatePresence>
+        </strong>{" "}
+        of <strong className="text-gray-900">{totalPage}</strong>
       </Typography>
       <IconButton
         size="sm"

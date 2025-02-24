@@ -1,19 +1,13 @@
 import ButtonBase from "@Components/Button/Button";
-import {
-  ArrowLeft,
-  ShoppingCart,
-  Lock
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import EmptyCart from "./EmptyCart";
+import Pagination from "@Components/Pagination/Pagination";
 import CartTable from "@Components/Table/CartTable";
-import { useAppSelector, useAppDispatch } from "../../Redux/Store";
-import {
-  updateCartQuantity,
-  removeCartItem,
-} from "../../Redux/AddToCart/AddToCart";
-import { motion, AnimatePresence } from "framer-motion";
-
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Lock, ShoppingCart } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { removeCartItem, updateCartQuantity } from "../../Redux/AddToCart/AddToCart";
+import { useAppDispatch, useAppSelector } from "../../Redux/Store";
+import EmptyCart from "./EmptyCart";
 const buttonHoverVariants = {
   initial: {
     scale: 1,
@@ -31,6 +25,7 @@ const buttonHoverVariants = {
 };
 const Cart = () => {
   const { items, totalAmount } = useAppSelector((state) => state.cart);
+  const [activePage, setActivePage] = useState<number>(1);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -40,6 +35,24 @@ const Cart = () => {
   const updateQuantity = (id: number, quantity: number): void => {
     dispatch(updateCartQuantity({ id, quantity }));
   };
+
+  const ITEM_PER_PAGE = 3;
+  const TOTAL_PAGE = Math.ceil(items?.length / ITEM_PER_PAGE) || 0;
+
+  const paginatedItems = useMemo(() => {
+    return items.slice(
+      activePage * ITEM_PER_PAGE - ITEM_PER_PAGE,
+      activePage * ITEM_PER_PAGE
+    );
+  }, [activePage, items]);
+
+  // NOTE : The ITEM_PER_PAGE constant doesn't need to be included in the dependency array of useMemo because :-
+  // 1. It's a constant value (3) defined outside the memoized function and doesn't change between renders.
+  // 2. React's dependency system is primarily concerned with values that can change between renders.
+  // 3. If ITEM_PER_PAGE was a state variable or a prop that could change, then it would need to be included in the dependency array.
+  const handlePageChange = useCallback((value: number): void => {
+    setActivePage(value);
+  }, []);
 
   if (!items.length) {
     return <EmptyCart />;
@@ -88,10 +101,10 @@ const Cart = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100"
+          className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 h-[680px] overflow-hidden"
         >
           <CartTable
-            items={items}
+            items={paginatedItems}
             onRemoveItem={removeItem}
             onUpdateQuantity={updateQuantity}
           />
@@ -151,6 +164,12 @@ const Cart = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      <Pagination
+        totalPage={TOTAL_PAGE}
+        activePage={activePage}
+        onPageChange={handlePageChange}
+      />
     </motion.div>
   );
 };
