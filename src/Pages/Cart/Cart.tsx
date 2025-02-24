@@ -101,7 +101,7 @@ const Cart = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 h-[680px] overflow-hidden"
+          className={`bg-white rounded-2xl shadow-xl p-6 border border-purple-100 overflow-hidden`}
         >
           <CartTable
             items={paginatedItems}

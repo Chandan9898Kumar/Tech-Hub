@@ -48,7 +48,8 @@
       "@Router/*": ["src/Router/*"],
       "@Data/*": ["src/Data/*"],
       "@Redux/*": ["src/Redux/*"],
-      "@Services/*": ["src/Services/*"]
+      "@Services/*": ["src/Services/*"],
+      "sonner": ["node_modules/sonner"]
     }
   },
   "include": [

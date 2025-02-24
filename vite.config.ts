@@ -31,6 +31,7 @@ export default defineConfig({
       '@Services': path.resolve(__dirname, './src/Services'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@styles': path.resolve(__dirname, './src/styles'),
+      'sonner': path.resolve(__dirname, 'node_modules/sonner')
     },
   },
   build: {
