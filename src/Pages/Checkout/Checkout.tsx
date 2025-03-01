@@ -1,23 +1,92 @@
-import React, { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useCallback } from "react";
 import ButtonBase from "@Components/Button/Button";
 import Card from "@mui/material/Card";
 import { useNavigate } from "react-router-dom";
-import Input from "@Components/InputField/Input";
 import { Toaster, toast } from "sonner";
 import {
   CreditCard,
   ArrowLeft,
+  ArrowRight,
   Truck,
   ShieldCheck,
   Package,
   Clock,
-  MapPin,
-  CheckCircle2,
-  BadgePercent,
 } from "lucide-react";
 import { getCurrentDateTime, validateEmail } from "../../utils/Utils";
 // import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // import { label } from "@/components/ui/label";
+import {
+  FormDetail,
+  ValidationRule,
+  ShippingMethod,
+  PaymentMethod,
+  CheckoutStep,
+} from "./Interface";
+import Shipping from "./Shipping";
+import Payment from "./Payment";
+import OrderConfirmation from "./OrderConfirmation";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Create a motion button component
+const MotionButtonBase = motion(ButtonBase);
+
+// Animation variants
+const buttonVariants = {
+  initial: (direction: number) => ({
+    x: direction * 50,
+    opacity: 0,
+    scale: 0.9,
+  }),
+  animate: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25,
+    },
+  },
+  exit: (direction: number) => ({
+    x: direction * 50,
+    opacity: 0,
+    scale: 0.9,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25,
+    },
+  }),
+  hover: {
+    scale: 1.05,
+    transition: {
+      duration: 0.2,
+    },
+  },
+  tap: {
+    scale: 0.95,
+  },
+};
+
+// Icon animation variants
+const iconVariants = {
+  initial: { opacity: 0, x: -5 },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      delay: 0.2,
+    },
+  },
+  hover: (direction: number) => ({
+    x: direction * 5,
+    transition: {
+      repeat: Infinity,
+      repeatType: "reverse",
+      duration: 0.6,
+    },
+  }),
+};
 
 // Mock data for the order
 const orderItems = [
@@ -37,7 +106,7 @@ const orderItems = [
   },
 ];
 
-const shippingMethods = [
+const shippingMethods: ShippingMethod[] = [
   {
     id: "standard",
     name: "Standard Delivery",
@@ -54,7 +123,7 @@ const shippingMethods = [
   },
 ];
 
-const paymentMethods = [
+const paymentMethods: PaymentMethod[] = [
   {
     id: "credit-card",
     name: "Credit Card",
@@ -67,26 +136,12 @@ const paymentMethods = [
   },
 ];
 
-const CheckoutSteps = [
+const CheckoutSteps: CheckoutStep[] = [
   { title: "Shipping", icon: Truck },
   { title: "Payment", icon: CreditCard },
   { title: "Confirmation", icon: ShieldCheck },
 ];
 
-interface ValidationRule {
-  field: keyof FormDetail;
-  message: string;
-  validate: (value: string) => boolean;
-}
-
-interface FormDetail {
-  firstName: string;
-  lastName: string;
-  email: string;
-  address: string;
-  city: string;
-  postalCode: string;
-}
 const formValidationRules: ValidationRule[] = [
   {
     field: "firstName",
@@ -122,11 +177,17 @@ const formValidationRules: ValidationRule[] = [
     validate: (value) => value.trim() !== "",
   },
 ];
-const formValidation = (formDetails: FormDetail): string => {
+
+type FormDetailsType = Omit<FormDetail, "cardNumber" | "expiryDate" | "cvv"> & {
+  [key: string]: string;
+};
+const formValidation = (formDetails: FormDetailsType): string => {
   for (const rule of formValidationRules) {
-    const value = formDetails[rule.field] as string;
-    if (!rule.validate(value)) {
-      return rule.message;
+    if (rule.field in formDetails) {
+      const value = formDetails[rule.field] as string;
+      if (!rule.validate(value)) {
+        return rule.message;
+      }
     }
   }
   return "";
@@ -152,16 +213,19 @@ const Checkout = () => {
   });
   const navigate = useNavigate();
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const name = event.target.name;
-    setFormData((prevValue) => ({
-      ...prevValue,
-      [name]: value,
-    }));
-  };
+  const handleInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      const name = event.target.name;
+      setFormData((prevValue) => ({
+        ...prevValue,
+        [name]: value,
+      }));
+    },
+    []
+  );
 
-  const handleNextStep = () => {
+  const handleNextStep = (): void => {
     const validationMessage = formValidation(formData);
     if (validationMessage) {
       toast(`${validationMessage}`, {
@@ -171,6 +235,10 @@ const Checkout = () => {
     }
 
     setCurrentStep(Math.min(CheckoutSteps.length - 1, currentStep + 1));
+  };
+
+  const handleBackStep = (): void => {
+    setCurrentStep(Math.max(0, currentStep - 1));
   };
 
   return (
@@ -223,269 +291,96 @@ const Checkout = () => {
           <Card className="p-6 backdrop-blur-sm bg-white/80">
             {/* Shipping Information */}
             {currentStep === 0 && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="flex items-center space-x-2 mb-6">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-semibold">
-                    Shipping Information
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="firstName">First Name</label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      label="First Name"
-                      placeholder="John"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="lastName">Last Name</label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      label="Last Name"
-                      type="text"
-                      placeholder="Doe"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <label htmlFor="email">Email</label>
-                    <Input
-                      id="email"
-                      name="email"
-                      label="Email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <label htmlFor="address">Address</label>
-                    <Input
-                      id="address"
-                      name="address"
-                      label="Address"
-                      type="text"
-                      placeholder="123 Main St"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="city">City</label>
-                    <Input
-                      id="city"
-                      name="city"
-                      label="City"
-                      type="text"
-                      placeholder="New York"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="postalCode">Postal Code</label>
-                    <Input
-                      id="postalCode"
-                      name="postalCode"
-                      label="PostalCode"
-                      type="text"
-                      placeholder="10001"
-                      value={formData.postalCode}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4 mt-8">
-                  <h3 className="font-medium flex items-center">
-                    <Truck className="h-5 w-5 mr-2 text-primary" />
-                    Shipping Method
-                  </h3>
-                  {/* <RadioGroup
-                    value={selectedShipping}
-                    onValueChange={setSelectedShipping}
-                    className="grid grid-cols-2 gap-4"
-                  >
-                    {shippingMethods.map((method) => (
-                      <label
-                        key={method.id}
-                        className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                          selectedShipping === method.id
-                            ? "border-primary bg-primary/5"
-                            : "hover:border-primary/50"
-                        }`}
-                      >
-                        <RadioGroupItem value={method.id} id={method.id} />
-                        <div className="flex-1">
-                          <div className="font-medium">{method.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {method.eta}
-                          </div>
-                          <div className="font-medium text-primary">
-                            ${method.price.toFixed(2)}
-                          </div>
-                        </div>
-                      </label>
-                    ))}
-                  </RadioGroup> */}
-                </div>
-              </div>
+              <Shipping
+                formData={formData}
+                handleInputChange={handleInputChange}
+              />
             )}
 
             {/* Payment Information */}
             {currentStep === 1 && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="flex items-center space-x-2 mb-6">
-                  <CreditCard className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-semibold">Payment Method</h2>
-                </div>
-
-                {/* <RadioGroup
-                  value={selectedPayment}
-                  onValueChange={setSelectedPayment}
-                  className="grid grid-cols-2 gap-4 mb-6"
-                >
-                  {paymentMethods.map((method) => (
-                    <label
-                      key={method.id}
-                      className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                        selectedPayment === method.id
-                          ? "border-primary bg-primary/5"
-                          : "hover:border-primary/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={method.id} id={method.id} />
-                      <div className="flex items-center space-x-2">
-                        <method.icon className="h-5 w-5" />
-                        <span className="font-medium">{method.name}</span>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup> */}
-
-                {selectedPayment === "credit-card" && (
-                  <div className="space-y-4 animate-fade-in">
-                    <div className="space-y-2">
-                      <label htmlFor="cardNumber">Card Number</label>
-                      <Input
-                        id="cardNumber"
-                        name="cardNumber"
-                        label="cardNumber"
-                        type="text"
-                        placeholder="1234 5678 9012 3456"
-                        value={formData.cardNumber}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label htmlFor="expiryDate">Expiry Date</label>
-                        <Input
-                          id="expiryDate"
-                          name="expiryDate"
-                          label="expiryDate"
-                          type="text"
-                          placeholder="MM/YY"
-                          value={formData.expiryDate}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="cvv">CVV</label>
-                        <Input
-                          id="cvv"
-                          name="cvv"
-                          label="cvv"
-                          type="text"
-                          placeholder="123"
-                          value={formData.cvv}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Payment
+                formData={formData}
+                handleInputChange={handleInputChange}
+                selectedPayment={selectedPayment}
+              />
             )}
 
             {/* Order Confirmation */}
             {currentStep === 2 && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="flex items-center space-x-2 mb-6">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-semibold">Order Confirmation</h2>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Shipping Address</h3>
-                    <p className="text-muted-foreground">
-                      {formData.firstName} {formData.lastName}
-                      <br />
-                      {formData.address}
-                      <br />
-                      {formData.city}, {formData.postalCode}
-                    </p>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Payment Method</h3>
-                    <p className="text-muted-foreground">
-                      {selectedPayment === "credit-card"
-                        ? `Card ending in ${formData.cardNumber.slice(-4)}`
-                        : "PayPal"}
-                    </p>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Shipping Method</h3>
-                    <p className="text-muted-foreground">
-                      {
-                        shippingMethods.find((m) => m.id === selectedShipping)
-                          ?.name
-                      }
-                      {" - "}
-                      {
-                        shippingMethods.find((m) => m.id === selectedShipping)
-                          ?.eta
-                      }
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <OrderConfirmation
+                formData={formData}
+                selectedPayment={selectedPayment}
+                shippingMethods={shippingMethods}
+                selectedShipping={selectedShipping}
+              />
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              {currentStep > 0 && (
-                <ButtonBase variant="text">Previous</ButtonBase>
-              )}
-              <ButtonBase
-                onClick={
-                  currentStep === CheckoutSteps.length - 1
-                    ? () => {
-                        toast.success("Order placed successfully!");
-                        navigate("/order-history");
-                      }
-                    : () => handleNextStep()
-                }
-                className="ml-auto"
-              >
-                {currentStep === CheckoutSteps.length - 1
-                  ? "Place Order"
-                  : "Continue"}
-              </ButtonBase>
-            </div>
+            <AnimatePresence mode="wait">
+              <div className="flex justify-between mt-8 gap-4">
+                {!!currentStep && (
+                  <MotionButtonBase
+                    variant="outlined"
+                    onClick={handleBackStep}
+                    variants={buttonVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    whileHover="hover"
+                    whileTap="tap"
+                    custom={-1} // Slides from left
+                    className="bg-white hover:bg-gray-50 border-2 border-purple-600 
+          text-purple-600 px-6 py-2 rounded-lg flex items-center gap-2 
+          shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    <motion.span
+                      variants={iconVariants}
+                      initial="initial"
+                      animate="animate"
+                      whileHover="hover"
+                      custom={-1}
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </motion.span>
+                    Previous
+                  </MotionButtonBase>
+                )}
+                <MotionButtonBase
+                  onClick={
+                    currentStep === CheckoutSteps.length - 1
+                      ? () => {
+                          toast.success("Order placed successfully!");
+                          navigate("/order-history");
+                        }
+                      : handleNextStep
+                  }
+                  variants={buttonVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  whileHover="hover"
+                  whileTap="tap"
+                  custom={1} // Slides from right
+                  className={`ml-auto bg-purple-600 hover:bg-purple-700 text-white 
+        px-6 py-2 rounded-lg flex items-center gap-2 shadow-md 
+        hover:shadow-lg transition-all duration-300`}
+                >
+                  {currentStep === CheckoutSteps.length - 1
+                    ? "Place Order"
+                    : "Continue"}
+                  <motion.span
+                    variants={iconVariants}
+                    initial="initial"
+                    animate="animate"
+                    whileHover="hover"
+                    custom={1}
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.span>
+                </MotionButtonBase>
+              </div>
+            </AnimatePresence>
           </Card>
         </div>
 
