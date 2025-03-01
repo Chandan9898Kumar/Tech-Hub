@@ -8,7 +8,8 @@ import NotFoundView from "../../NotFound/NotFound";
 import { addItemToCart } from "../../Redux/AddToCart/AddToCart";
 import { useAppDispatch } from "../../Redux/Store";
 import { cn } from "../../utils/cn";
-
+import { Toaster, toast } from "sonner";
+import { getCurrentDateTime } from "../../utils/Utils";
 const { products } = categoryItems;
 
 const ProductDetails = () => {
@@ -37,6 +38,9 @@ const ProductDetails = () => {
 
   const handleAddToCart = () => {
     dispatch(addItemToCart({ ...product, quantity }));
+    toast(`Total ${quantity} items are added to cart.`, {
+      description: getCurrentDateTime(),
+    });
   };
 
   const increaseQuantity = () => {
@@ -79,6 +83,7 @@ const ProductDetails = () => {
       {...pageTransition}
       className="min-h-screen px-4 py-8 md:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white"
     >
+      <Toaster />
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         <motion.div {...slideIn} className="flex justify-left mt-5 mb-5">

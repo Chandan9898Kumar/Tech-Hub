@@ -646,3 +646,42 @@ export function stripHtmlTags(inputString: string) {
   const htmlTagPattern = /<\/?[^>]+>/gi;
   return inputString.replace(htmlTagPattern, '');
 }
+
+
+export function getCurrentDateTime() {
+  return new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+  }).format(new Date()).replace(',', ' at');
+}
+
+
+export const validateEmail = (email: string): { isValid: boolean; message: string } => {
+  // Check for empty or whitespace-only email
+  if (!email || email.trim() === '') {
+      return {
+          isValid: false,
+          message: 'Email address is required'
+      };
+  }
+
+  // Regular expression for email validation
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (!emailRegex.test(email)) {
+      return {
+          isValid: false,
+          message: 'Please enter a valid email address'
+      };
+  }
+
+  return {
+      isValid: true,
+      message: 'Email is valid'
+  };
+};

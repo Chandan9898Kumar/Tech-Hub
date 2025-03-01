@@ -3,7 +3,7 @@ import ButtonBase from "@Components/Button/Button";
 import Card from "@mui/material/Card";
 import { useNavigate } from "react-router-dom";
 import Input from "@Components/InputField/Input";
-// import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 import {
   CreditCard,
   ArrowLeft,
@@ -15,9 +15,9 @@ import {
   CheckCircle2,
   BadgePercent,
 } from "lucide-react";
+import { getCurrentDateTime, validateEmail } from "../../utils/Utils";
 // import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // import { label } from "@/components/ui/label";
-// import { toast } from "sonner";
 
 // Mock data for the order
 const orderItems = [
@@ -73,6 +73,65 @@ const CheckoutSteps = [
   { title: "Confirmation", icon: ShieldCheck },
 ];
 
+interface ValidationRule {
+  field: keyof FormDetail;
+  message: string;
+  validate: (value: string) => boolean;
+}
+
+interface FormDetail {
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  city: string;
+  postalCode: string;
+}
+const formValidationRules: ValidationRule[] = [
+  {
+    field: "firstName",
+    message: "First Name should not be empty",
+    validate: (value) => value.trim() !== "",
+  },
+  {
+    field: "lastName",
+    message: "Last Name should not be empty",
+    validate: (value) => value.trim() !== "",
+  },
+  {
+    field: "email",
+    message: "Invalid email format",
+    validate: (value) => {
+      const emailResult = validateEmail(value);
+      return emailResult.isValid;
+    },
+  },
+  {
+    field: "address",
+    message: "Address should not be empty",
+    validate: (value) => value.trim() !== "",
+  },
+  {
+    field: "city",
+    message: "City should not be empty",
+    validate: (value) => value.trim() !== "",
+  },
+  {
+    field: "postalCode",
+    message: "PostalCode should not be empty",
+    validate: (value) => value.trim() !== "",
+  },
+];
+const formValidation = (formDetails: FormDetail): string => {
+  for (const rule of formValidationRules) {
+    const value = formDetails[rule.field] as string;
+    if (!rule.validate(value)) {
+      return rule.message;
+    }
+  }
+  return "";
+};
+
 const Checkout = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedShipping, setSelectedShipping] = useState(
@@ -93,10 +152,30 @@ const Checkout = () => {
   });
   const navigate = useNavigate();
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {};
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const name = event.target.name;
+    setFormData((prevValue) => ({
+      ...prevValue,
+      [name]: value,
+    }));
+  };
+
+  const handleNextStep = () => {
+    const validationMessage = formValidation(formData);
+    if (validationMessage) {
+      toast(`${validationMessage}`, {
+        description: getCurrentDateTime(),
+      });
+      return;
+    }
+
+    setCurrentStep(Math.min(CheckoutSteps.length - 1, currentStep + 1));
+  };
 
   return (
     <div className="min-h-screen bg-muted p-6 animate-fade-in">
+      <Toaster />
       <ButtonBase
         variant="text"
         className="mb-6 hover:bg-primary/10"
@@ -392,10 +471,14 @@ const Checkout = () => {
                 <ButtonBase variant="text">Previous</ButtonBase>
               )}
               <ButtonBase
-                // onClick={currentStep === CheckoutSteps.length - 1 ? () => {
-                //   toast.success("Order placed successfully!");
-                //   navigate("/order-history");
-                // } : ()=>{}}
+                onClick={
+                  currentStep === CheckoutSteps.length - 1
+                    ? () => {
+                        toast.success("Order placed successfully!");
+                        navigate("/order-history");
+                      }
+                    : () => handleNextStep()
+                }
                 className="ml-auto"
               >
                 {currentStep === CheckoutSteps.length - 1
