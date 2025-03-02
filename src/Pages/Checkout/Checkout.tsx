@@ -212,7 +212,7 @@ const formValidation = (formDetails: FormDetailsType): string => {
 };
 
 const Checkout = () => {
-  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState<number>(2);
   const [selectedShipping, setSelectedShipping] = useState(
     shippingMethods[0].id
   );
