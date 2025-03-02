@@ -11,11 +11,17 @@ import {
   ShieldCheck,
   Package,
   Clock,
-  Wallet
+  Wallet,
 } from "lucide-react";
-import { getCurrentDateTime, validateEmail } from "../../utils/Utils";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// import { label } from "@/components/ui/label";
+import {
+  getCurrentDateTime,
+  validateEmail,
+  validateCreditCardNumber,
+  validateCVV,
+  validateExpiryDate,
+  validatePostalCode,
+} from "../../utils/Utils";
+
 import {
   FormDetail,
   ValidationRule,
@@ -27,7 +33,7 @@ import Shipping from "./Shipping";
 import Payment from "./Payment";
 import OrderConfirmation from "./OrderConfirmation";
 import Progress from "./Progress";
-import OrderSummary from "./OrderSummary";
+// import OrderSummary from "./OrderSummary";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Create a motion button component
@@ -91,24 +97,6 @@ const iconVariants = {
   }),
 };
 
-// Mock data for the order
-const orderItems = [
-  {
-    id: 1,
-    name: "Premium Wireless Headphones",
-    price: 199.99,
-    quantity: 1,
-    image: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    name: "Smart Watch Series 5",
-    price: 299.99,
-    quantity: 1,
-    image: "/placeholder.svg",
-  },
-];
-
 const shippingMethods: ShippingMethod[] = [
   {
     id: "standard",
@@ -144,14 +132,13 @@ const paymentMethods: PaymentMethod[] = [
     name: "Apple Pay",
     icon: Wallet,
     description: "Quick payment with Apple Pay",
-   
   },
   {
     id: "google-pay",
     name: "Google Pay",
     icon: Wallet,
     description: "Easy payment with Google Pay",
-  }
+  },
 ];
 
 const CheckoutSteps: CheckoutStep[] = [
@@ -191,8 +178,8 @@ const formValidationRules: ValidationRule[] = [
   },
   {
     field: "postalCode",
-    message: "PostalCode should not be empty",
-    validate: (value) => value.trim() !== "",
+    message: "Postal Code is not valid",
+    validate: (value) => validatePostalCode(value),
   },
 ];
 
@@ -211,13 +198,48 @@ const formValidation = (formDetails: FormDetailsType): string => {
   return "";
 };
 
+const cardValidationRule: ValidationRule[] = [
+  {
+    field: "cardNumber",
+    message: "Your Card number is not valid",
+    validate: (value) => validateCreditCardNumber(value),
+  },
+  {
+    field: "cvv",
+    message: "Your Cvv number is not valid",
+    validate: (value) => validateCVV(value),
+  },
+
+  {
+    field: "expiryDate",
+    message: "Your expiryDate is is not valid",
+    validate: (value) => validateExpiryDate(value),
+  },
+];
+
+type CardValidations = Pick<FormDetail, "cardNumber" | "expiryDate" | "cvv"> & {
+  [key: string]: string;
+};
+
+const CardValidation = (cardDetails: CardValidations): string => {
+  for (const rule of cardValidationRule) {
+    if (rule.field in cardDetails) {
+      const value = cardDetails[rule.field];
+      if (!rule.validate(value)) {
+        return rule.message;
+      }
+    }
+  }
+
+  return "";
+};
+
 const Checkout = () => {
-  const [currentStep, setCurrentStep] = useState<number>(2);
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedShipping, setSelectedShipping] = useState(
     shippingMethods[0].id
   );
   const [selectedPayment, setSelectedPayment] = useState(paymentMethods[0].id);
-  const [couponCode, setCouponCode] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -244,7 +266,11 @@ const Checkout = () => {
   );
 
   const handleNextStep = (): void => {
-    const validationMessage = formValidation(formData);
+    const validationMessage = !currentStep
+      ? formValidation(formData)
+      : selectedPayment === "credit-card"
+      ? CardValidation(formData)
+      : "";
     if (validationMessage) {
       toast(`${validationMessage}`, {
         description: getCurrentDateTime(),
@@ -384,21 +410,21 @@ const Checkout = () => {
 
         {/* Order Summary */}
         <div className="lg:col-span-1 space-y-6">
-          <OrderSummary
-          // orderItems={orderItems}
-          // itemQuantities={itemQuantities}
-          // updateQuantity={updateQuantity}
-          // shippingMethods={shippingMethods}
-          // selectedShipping={selectedShipping}
-          // couponCode={couponCode}
-          // setCouponCode={setCouponCode}
-          // showOrderSummary={showOrderSummary}
-          // setShowOrderSummary={setShowOrderSummary}
-          // currentPage={currentPage}
-          // setCurrentPage={setCurrentPage}
-          // itemsPerPage={itemsPerPage}
-          // totalItems={totalItems}
-          />
+          {/* <OrderSummary
+          orderItems={orderItems}
+          itemQuantities={itemQuantities}
+          updateQuantity={updateQuantity}
+          shippingMethods={shippingMethods}
+          selectedShipping={selectedShipping}
+          couponCode={couponCode}
+          setCouponCode={setCouponCode}
+          showOrderSummary={showOrderSummary}
+          setShowOrderSummary={setShowOrderSummary}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          totalItems={totalItems}
+          /> */}
         </div>
       </div>
     </div>

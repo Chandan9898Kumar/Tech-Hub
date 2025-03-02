@@ -1,5 +1,5 @@
 import Input from "@Components/InputField/Input";
-import { Calendar, CreditCard, ShieldCheck, Wallet } from "lucide-react";
+import { CreditCard, ShieldCheck, Wallet } from "lucide-react";
 import { ChangeEvent, FC, memo } from "react";
 import { Label } from "../../Components/Label/Label";
 import { ReactElement } from "react";
@@ -131,7 +131,7 @@ const Payment: FC<PaymentProps> = ({
                       id="cvv"
                       name="cvv"
                       label="Cvv"
-                      type="number"
+                      type="text"
                       placeholder="123"
                       value={formData.cvv}
                       onChange={handleInputChange}

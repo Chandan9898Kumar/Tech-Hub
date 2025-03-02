@@ -685,3 +685,52 @@ export const validateEmail = (email: string): { isValid: boolean; message: strin
       message: 'Email is valid'
   };
 };
+
+
+
+//  Credit Card Number Validation
+const creditCardNumberRegex = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12}|(?:2131|1800|35\d{3})\d{11})$/;
+
+export const validateCreditCardNumber = (cardNumber:number | string) => {
+  return creditCardNumberRegex.test(cardNumber.toString());
+};
+
+
+//  Cvv cards Validation.
+const cvvRegex = /^[0-9]{3,4}$/;
+
+export const validateCVV = (cvv:string | number) => {
+  return cvvRegex.test(cvv.toString());
+};
+
+
+// Credit Card Expiry Date Validation
+
+const expiryDateRegex = /^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/;
+
+export const validateExpiryDate = (expiryDate:string) => {
+  if (!expiryDateRegex.test(expiryDate)) {
+    return false;
+  }
+
+  const [month, year] = expiryDate.split('/');
+  const currentYear = new Date().getFullYear() % 100; // Get last two digits of the current year
+  const currentMonth = new Date().getMonth() + 1; // Months are zero-based
+
+  const expiryYear = year.length === 2 ? parseInt(year, 10) : parseInt(year.slice(-2), 10);
+  const expiryMonth = parseInt(month, 10);
+
+  if (expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)) {
+    return false;
+  }
+
+  return true;
+};
+
+
+//  Postal Codes
+
+export const validatePostalCode = (postalCode:string) => {
+  const regex = /^[a-zA-Z0-9]{8}$/;  // Example using basic 8-char format
+  return regex.test(postalCode);
+};
