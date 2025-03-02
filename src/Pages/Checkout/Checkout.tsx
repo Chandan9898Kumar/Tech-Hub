@@ -33,7 +33,8 @@ import Shipping from "./Shipping";
 import Payment from "./Payment";
 import OrderConfirmation from "./OrderConfirmation";
 import Progress from "./Progress";
-// import OrderSummary from "./OrderSummary";
+import OrderSummary from "./OrderSummary";
+import ShippingInfo from './ShippingInfo'
 import { motion, AnimatePresence } from "framer-motion";
 
 // Create a motion button component
@@ -236,9 +237,7 @@ const CardValidation = (cardDetails: CardValidations): string => {
 
 const Checkout = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [selectedShipping, setSelectedShipping] = useState(
-    shippingMethods[0].id
-  );
+  const [selectedShipping, setSelectedShipping] = useState(shippingMethods[0].id);
   const [selectedPayment, setSelectedPayment] = useState(paymentMethods[0].id);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -410,23 +409,15 @@ const Checkout = () => {
 
         {/* Order Summary */}
         <div className="lg:col-span-1 space-y-6">
-          {/* <OrderSummary
-          orderItems={orderItems}
-          itemQuantities={itemQuantities}
-          updateQuantity={updateQuantity}
+          <OrderSummary
           shippingMethods={shippingMethods}
           selectedShipping={selectedShipping}
-          couponCode={couponCode}
-          setCouponCode={setCouponCode}
-          showOrderSummary={showOrderSummary}
-          setShowOrderSummary={setShowOrderSummary}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          itemsPerPage={itemsPerPage}
-          totalItems={totalItems}
-          /> */}
+          />
+          <ShippingInfo />
         </div>
+        
       </div>
+     
     </div>
   );
 };

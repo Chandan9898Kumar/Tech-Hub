@@ -37,3 +37,14 @@ export interface CheckoutStep {
   title: string;
   icon: LucideIcon;
 }
+
+
+export interface OrderItems {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+  category: string;
+  details: string[];
+}

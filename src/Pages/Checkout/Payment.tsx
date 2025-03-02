@@ -95,7 +95,7 @@ const Payment: FC<PaymentProps> = ({
                 <div className="relative">
                   <Input
                     id="cardNumber"
-                    name="Card Number"
+                    name="cardNumber"
                     label="Card Number"
                     type="text"
                     placeholder="1234 5678 9012 3456"
@@ -113,7 +113,7 @@ const Payment: FC<PaymentProps> = ({
                   <div className="relative">
                     <Input
                       id="expiryDate"
-                      name="Expiry Date"
+                      name="expiryDate"
                       placeholder="MM/YY"
                       label="Expiry Date"
                       type="text"
