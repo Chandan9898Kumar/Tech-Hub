@@ -1,9 +1,29 @@
-import { memo } from "react";
+import { memo, FC, ChangeEvent } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { motion } from "framer-motion";
 
-const Input = ({ id, label, value, name, type, placeholder, onChange }) => {
+interface InputProps {
+  id: string;
+  label: string;
+  value: string;
+  name: string;
+  type: string;
+  placeholder: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+}
+
+const Input: FC<InputProps> = ({
+  id,
+  label='text',
+  value,
+  name='text',
+  type='text',
+  placeholder='text',
+  onChange,
+  className=""
+}) => {
   // Animation variants
   const inputVariants = {
     initial: {
@@ -42,6 +62,13 @@ const Input = ({ id, label, value, name, type, placeholder, onChange }) => {
           type={type}
           placeholder={placeholder}
           onChange={onChange}
+          className={className}
+          variant="outlined"
+          InputProps={{
+            sx: {
+              position: 'relative',
+            }
+          }}
         />
       </Box>
     </motion.div>

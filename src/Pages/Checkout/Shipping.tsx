@@ -1,16 +1,25 @@
 import Input from "@Components/InputField/Input";
-import { memo, ChangeEvent, FC } from "react";
-import { Truck, MapPin } from "lucide-react";
-import { FormDetail } from "./Interface";
-
+import { MapPin, Truck } from "lucide-react";
+import { ChangeEvent, FC, memo } from "react";
+import { RadioGroup, RadioGroupItem } from "../../Components/Radio/Radio";
+import { FormDetail, ShippingMethod } from "./Interface";
 type FormdataProps = Omit<FormDetail, "cardNumber" | "expiryDate" | "cvv">;
 
 interface ShippingProps {
   formData: FormdataProps;
   handleInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  selectedShipping: string;
+  setSelectedShipping: (value: string) => void;
+  shippingMethods: ShippingMethod[];
 }
 
-const Shipping: FC<ShippingProps> = ({ formData, handleInputChange }) => {
+const Shipping: FC<ShippingProps> = ({
+  formData,
+  handleInputChange,
+  selectedShipping,
+  setSelectedShipping,
+  shippingMethods,
+}) => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center space-x-2 mb-6">
@@ -85,7 +94,7 @@ const Shipping: FC<ShippingProps> = ({ formData, handleInputChange }) => {
             id="postalCode"
             name="postalCode"
             label="PostalCode"
-            type="text"
+            type="number"
             placeholder="10001"
             value={formData.postalCode}
             onChange={handleInputChange}
@@ -98,12 +107,12 @@ const Shipping: FC<ShippingProps> = ({ formData, handleInputChange }) => {
           <Truck className="h-5 w-5 mr-2 text-primary" />
           Shipping Method
         </h3>
-        {/* <RadioGroup
+        <RadioGroup
           value={selectedShipping}
           onValueChange={setSelectedShipping}
           className="grid grid-cols-2 gap-4"
         >
-          {shippingMethods.map((method) => (
+          {shippingMethods?.map((method) => (
             <label
               key={method.id}
               className={`flex items-center space-x-3 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
@@ -124,7 +133,7 @@ const Shipping: FC<ShippingProps> = ({ formData, handleInputChange }) => {
               </div>
             </label>
           ))}
-        </RadioGroup> */}
+        </RadioGroup>
       </div>
     </div>
   );

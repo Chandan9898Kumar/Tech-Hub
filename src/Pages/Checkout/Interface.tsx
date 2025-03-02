@@ -30,6 +30,7 @@ export interface PaymentMethod {
   id: string;
   name: string;
   icon: LucideIcon;
+  description:string
 }
 
 export interface CheckoutStep {

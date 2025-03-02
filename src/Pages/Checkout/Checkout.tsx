@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Package,
   Clock,
+  Wallet
 } from "lucide-react";
 import { getCurrentDateTime, validateEmail } from "../../utils/Utils";
 // import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -25,6 +26,8 @@ import {
 import Shipping from "./Shipping";
 import Payment from "./Payment";
 import OrderConfirmation from "./OrderConfirmation";
+import Progress from "./Progress";
+import OrderSummary from "./OrderSummary";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Create a motion button component
@@ -82,7 +85,7 @@ const iconVariants = {
     x: direction * 5,
     transition: {
       repeat: Infinity,
-      repeatType: "reverse",
+      repeatType: "reverse" as const,
       duration: 0.6,
     },
   }),
@@ -128,12 +131,27 @@ const paymentMethods: PaymentMethod[] = [
     id: "credit-card",
     name: "Credit Card",
     icon: CreditCard,
+    description: "Pay securely with your credit card",
   },
   {
     id: "paypal",
     name: "PayPal",
     icon: Package,
+    description: "Fast and secure payment with PayPal",
   },
+  {
+    id: "apple-pay",
+    name: "Apple Pay",
+    icon: Wallet,
+    description: "Quick payment with Apple Pay",
+   
+  },
+  {
+    id: "google-pay",
+    name: "Google Pay",
+    icon: Wallet,
+    description: "Easy payment with Google Pay",
+  }
 ];
 
 const CheckoutSteps: CheckoutStep[] = [
@@ -253,40 +271,11 @@ const Checkout = () => {
         Back to Cart
       </ButtonBase>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-10 lg:grid-cols-3 gap-10">
         {/* Main Checkout Form */}
         <div className="lg:col-span-2 space-y-6">
           {/* Progress Steps */}
-          <div className="flex justify-between mb-8">
-            {CheckoutSteps.map((step, index) => (
-              <div
-                key={step.title}
-                className={`flex items-center ${
-                  index <= currentStep ? "text-purple-600" : "text-gray-400"
-                }`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    index <= currentStep ? "bg-purple-600" : "bg-gray-200"
-                  }`}
-                >
-                  <step.icon
-                    className={`h-5 w-5 ${
-                      index <= currentStep ? "text-white" : "text-gray-400"
-                    }`}
-                  />
-                </div>
-                <span className="ml-2 font-medium">{step.title}</span>
-                {index < CheckoutSteps.length - 1 && (
-                  <div
-                    className={`h-[2px] w-16 mx-4 transition-all duration-300 ${
-                      index < currentStep ? "bg-purple-600" : "bg-gray-200"
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+          <Progress CheckoutSteps={CheckoutSteps} currentStep={currentStep} />
 
           <Card className="p-6 backdrop-blur-sm bg-white/80">
             {/* Shipping Information */}
@@ -294,6 +283,9 @@ const Checkout = () => {
               <Shipping
                 formData={formData}
                 handleInputChange={handleInputChange}
+                selectedShipping={selectedShipping}
+                setSelectedShipping={setSelectedShipping}
+                shippingMethods={shippingMethods}
               />
             )}
 
@@ -303,6 +295,8 @@ const Checkout = () => {
                 formData={formData}
                 handleInputChange={handleInputChange}
                 selectedPayment={selectedPayment}
+                setSelectedPayment={setSelectedPayment}
+                paymentMethods={paymentMethods}
               />
             )}
 
@@ -318,7 +312,13 @@ const Checkout = () => {
 
             {/* Navigation Buttons */}
             <AnimatePresence mode="wait">
-              <div className="flex justify-between mt-8 gap-4">
+              <div
+                className={`${
+                  currentStep
+                    ? "flex justify-between mt-8 gap-4"
+                    : " flex justify-end mt-8 gap-4"
+                }`}
+              >
                 {!!currentStep && (
                   <MotionButtonBase
                     variant="outlined"
@@ -330,9 +330,7 @@ const Checkout = () => {
                     whileHover="hover"
                     whileTap="tap"
                     custom={-1} // Slides from left
-                    className="bg-white hover:bg-gray-50 border-2 border-purple-600 
-          text-purple-600 px-6 py-2 rounded-lg flex items-center gap-2 
-          shadow-md hover:shadow-lg transition-shadow"
+                    className="bg-white hover:bg-gray-50 border-2 border-purple-600 text-purple-600 px-6 py-2 rounded-lg flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
                   >
                     <motion.span
                       variants={iconVariants}
@@ -386,59 +384,21 @@ const Checkout = () => {
 
         {/* Order Summary */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="p-6 backdrop-blur-sm bg-white/80 sticky top-6">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            <div className="space-y-4">
-              {orderItems.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Quantity: {item.quantity}
-                    </p>
-                    <p className="font-medium">${item.price.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-
-              <div className="pt-4 border-t">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    {/* <span>${calculateTotal().subtotal.toFixed(2)}</span> */}
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
-                    {/* <span>${calculateTotal().shipping.toFixed(2)}</span> */}
-                  </div>
-                  {/* {calculateTotal().discount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount</span>
-                      <span>-${calculateTotal().discount.toFixed(2)}</span>
-                    </div>
-                  )} */}
-                  <div className="flex justify-between font-semibold pt-2 border-t">
-                    <span>Total</span>
-                    {/* <span>${calculateTotal().total.toFixed(2)}</span> */}
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  Secure checkout
-                </div>
-              </div>
-            </div>
-          </Card>
+          <OrderSummary
+          // orderItems={orderItems}
+          // itemQuantities={itemQuantities}
+          // updateQuantity={updateQuantity}
+          // shippingMethods={shippingMethods}
+          // selectedShipping={selectedShipping}
+          // couponCode={couponCode}
+          // setCouponCode={setCouponCode}
+          // showOrderSummary={showOrderSummary}
+          // setShowOrderSummary={setShowOrderSummary}
+          // currentPage={currentPage}
+          // setCurrentPage={setCurrentPage}
+          // itemsPerPage={itemsPerPage}
+          // totalItems={totalItems}
+          />
         </div>
       </div>
     </div>
