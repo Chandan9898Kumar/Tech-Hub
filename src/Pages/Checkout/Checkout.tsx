@@ -34,9 +34,9 @@ import Payment from "./Payment";
 import OrderConfirmation from "./OrderConfirmation";
 import Progress from "./Progress";
 import OrderSummary from "./OrderSummary";
-import ShippingInfo from './ShippingInfo'
+import ShippingInfo from "./ShippingInfo";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useAppSelector } from "../../Redux/Store";
 // Create a motion button component
 const MotionButtonBase = motion(ButtonBase);
 
@@ -237,7 +237,9 @@ const CardValidation = (cardDetails: CardValidations): string => {
 
 const Checkout = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [selectedShipping, setSelectedShipping] = useState(shippingMethods[0].id);
+  const [selectedShipping, setSelectedShipping] = useState(
+    shippingMethods[0].id
+  );
   const [selectedPayment, setSelectedPayment] = useState(paymentMethods[0].id);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -251,6 +253,7 @@ const Checkout = () => {
     cvv: "",
   });
   const navigate = useNavigate();
+  const orderItems = useAppSelector((state) => state.cart.items);
 
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -282,6 +285,68 @@ const Checkout = () => {
 
   const handleBackStep = (): void => {
     setCurrentStep(Math.max(0, currentStep - 1));
+  };
+
+  const calculateTotal = () => {
+    const subtotal =
+      orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0) ||
+      0;
+    const shipping =
+      shippingMethods.find((method) => method.id === selectedShipping)?.price ||
+      0;
+    return {
+      subtotal,
+      shipping,
+      total: subtotal + shipping,
+      discount: 0,
+    };
+  };
+  const handlePlaceOrder = (): void => {
+    toast.success("Order placed successfully!");
+    navigate("/confirmation", {
+      state: {
+        orderNumber: `ORD-${Math.floor(Math.random() * 1000000)}`,
+        orderDate: new Date().toISOString(),
+        items: orderItems,
+        subtotal: calculateTotal().subtotal,
+        shippingCost: calculateTotal().shipping,
+        discount: calculateTotal().discount,
+        tax: calculateTotal().subtotal * 0.08,
+        total: calculateTotal().total,
+        shippingAddress: {
+          fullName: `${formData.firstName} ${formData.lastName}`,
+          addressLine1: formData.address,
+          city: formData.city,
+          state: "California",
+          zipCode: formData.postalCode,
+          country: "United States",
+          phoneNumber: "555-555-5555",
+        },
+        paymentMethod: {
+          id: selectedPayment,
+          type: selectedPayment === "credit-card" ? "credit" : selectedPayment,
+          label:
+            paymentMethods.find((m) => m.id === selectedPayment)?.name || "",
+          lastFourDigits: formData.cardNumber
+            ? formData.cardNumber.slice(-4)
+            : "",
+        },
+        shippingMethod: {
+          id: selectedShipping,
+          name:
+            shippingMethods.find((m) => m.id === selectedShipping)?.name || "",
+          description: "",
+          price:
+            shippingMethods.find((m) => m.id === selectedShipping)?.price || 0,
+          estimatedDelivery:
+            shippingMethods.find((m) => m.id === selectedShipping)?.eta || "",
+          icon: null,
+        },
+        estimatedDelivery:
+          shippingMethods.find((m) => m.id === selectedShipping)?.eta || "",
+        status: "Confirmed",
+      },
+    });
   };
 
   return (
@@ -372,10 +437,7 @@ const Checkout = () => {
                 <MotionButtonBase
                   onClick={
                     currentStep === CheckoutSteps.length - 1
-                      ? () => {
-                          toast.success("Order placed successfully!");
-                          navigate("/order-history");
-                        }
+                      ? handlePlaceOrder
                       : handleNextStep
                   }
                   variants={buttonVariants}
@@ -410,14 +472,12 @@ const Checkout = () => {
         {/* Order Summary */}
         <div className="lg:col-span-1 space-y-6">
           <OrderSummary
-          shippingMethods={shippingMethods}
-          selectedShipping={selectedShipping}
+            shippingMethods={shippingMethods}
+            selectedShipping={selectedShipping}
           />
           <ShippingInfo />
         </div>
-        
       </div>
-     
     </div>
   );
 };
