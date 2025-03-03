@@ -1,209 +1,148 @@
-import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Badge from "@mui/material/Badge";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import MoreIcon from "@mui/icons-material/MoreVert";
-import HistoryIcon from "@mui/icons-material/History";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LocalMallIcon from "@mui/icons-material/LocalMall";
-import { motion } from "framer-motion";
-import Tooltip from "@mui/material/Tooltip";
-import { useAppSelector } from "../../Redux/Store";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@Components/Button/ButtonHeader";
+import { History, Menu, Moon, ShoppingBag, Sun, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import CartButton from "./CartButton";
+import { useTheme } from "./ThemeProvider";
 
-export default function Header() {
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =React.useState<null | HTMLElement>(null);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+const Navbar = () => {
+  const { theme, setTheme } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+ 
 
-  const itemAddedToCart = useAppSelector((state) => state.cart.totalQuantity);
-  const navigate= useNavigate()
-  
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
+  // Add scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
 
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <HistoryIcon />
-          </Badge>
-        </IconButton>
-        <p>History</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label={`show ${itemAddedToCart} new notifications`}
-          color="inherit"
-          onClick={()=> navigate('/cart')}
-        >
-          <Badge badgeContent={itemAddedToCart} color="error">
-            <ShoppingCartIcon />
-          </Badge>
-        </IconButton>
-        <p>Cart</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <DarkModeIcon />
-        </IconButton>
-        <p>Mode</p>
-      </MenuItem>
-    </Menu>
-  );
-
-  // Animation variants
-  const headerVariants = {
-    hidden: {
-      y: -100,
-      opacity: 0,
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const iconVariants = {
-    hover: {
-      scale: 1.1,
-      rotate: 5,
-      transition: {
-        duration: 0.2,
-      },
-    },
-  };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <motion.div initial="hidden" animate="visible" variants={headerVariants}>
-        <AppBar
-          position="static"
-          sx={{
-            background: "rgba(255, 255, 255, 0.75)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.125)",
-            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-            borderRadius: "20px",
-            color: "black",
-          }}
-        >
-          <Toolbar>
-            <motion.div whileHover="hover" variants={iconVariants}>
-              <Tooltip title="Home">
-                <IconButton
-                  size="large"
-                  edge="start"
-                  color="inherit"
-                  aria-label="open drawer"
-                  sx={{ mr: 2 }}
-                >
-                  <LocalMallIcon />
-                </IconButton>
-              </Tooltip>
-            </motion.div>
+    <nav className={`sticky top-0 z-50 w-full backdrop-blur-lg dark:bg-opacity-90 border-b transition-all duration-300 ${
+      scrolled 
+        ? 'bg-white/90 dark:bg-gray-900/90 shadow-sm border-gray-200 dark:border-gray-800' 
+        : 'bg-white/80 dark:bg-gray-900/80 border-transparent'
+    }`}>
+      <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo/Title */}
+          <Link 
+            to="/" 
+            className="flex items-center space-x-2 transition-transform duration-300 hover:scale-105"
+          >
+            <ShoppingBag className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+              TechHub
+            </h1>
+          </Link>
 
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-3">
+            <Link 
+              to="/order-history"
+              className="relative group"
             >
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ display: { xs: "none", sm: "block" } }}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="flex items-center gap-2 transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/30"
               >
-                Tech - Hub
-              </Typography>
-            </motion.div>
+                <History className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+                <span className="relative">
+                  Orders
+                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-purple-600 dark:bg-purple-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                </span>
+              </Button>
+            </Link>
+            
+            <div className="transition-transform duration-300 hover:scale-105 ml-1">
+              <CartButton />
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="ml-1 transition-all duration-300 hover:rotate-90 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-[18px] w-[18px] text-yellow-400" />
+              ) : (
+                <Moon className="h-[18px] w-[18px]" />
+              )}
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </div>
 
-            <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              {/* Wrap each IconButton with motion.div for hover animation */}
-              <motion.div whileHover="hover" variants={iconVariants}>
-                <Tooltip title="Order History">
-                  <IconButton size="large" color="inherit">
-                    <Badge badgeContent={4} color="error">
-                      <HistoryIcon />
-                    </Badge>
-                  </IconButton>
-                </Tooltip>
-              </motion.div>
+          {/* Mobile menu button */}
+          <div className="flex md:hidden items-center space-x-2">
+            <div className="transition-transform duration-300 hover:scale-105">
+              <CartButton />
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleMenu}
+              className="transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+            >
+              {isMenuOpen ? (
+                <X className="h-5 w-5 animate-in zoom-in duration-300" />
+              ) : (
+                <Menu className="h-5 w-5 animate-in zoom-in duration-300" />
+              )}
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
+        </div>
+      </div>
 
-              <motion.div whileHover="hover" variants={iconVariants}>
-                <Tooltip title="Cart">
-                  <IconButton size="large" color="inherit" onClick={()=> navigate('/cart')}>
-                    <Badge badgeContent={itemAddedToCart} color="error">
-                      <ShoppingCartIcon />
-                    </Badge>
-                  </IconButton>
-                </Tooltip>
-              </motion.div>
-
-              <motion.div whileHover="hover" variants={iconVariants}>
-                <IconButton size="large" edge="end" color="inherit">
-                  <DarkModeIcon />
-                </IconButton>
-              </motion.div>
-            </Box>
-
-            <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <motion.div whileHover="hover" variants={iconVariants}>
-                <IconButton
-                  size="large"
-                  aria-label="show more"
-                  aria-controls={mobileMenuId}
-                  aria-haspopup="true"
-                  onClick={handleMobileMenuOpen}
-                  color="inherit"
-                >
-                  <MoreIcon />
-                </IconButton>
-              </motion.div>
-            </Box>
-          </Toolbar>
-        </AppBar>
-      </motion.div>
-      {renderMobileMenu}
-    </Box>
+      {/* Mobile menu */}
+      <div className={`md:hidden transition-all duration-300 ease-in-out ${
+        isMenuOpen 
+          ? 'max-h-64 opacity-100 translate-y-0' 
+          : 'max-h-0 opacity-0 -translate-y-4 pointer-events-none'
+      } overflow-hidden`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg">
+          <div className="flex flex-col items-center space-y-4 p-4">
+            <Link to="/order-history" className="w-full" onClick={() => setIsMenuOpen(false)}>
+              <Button 
+                variant="ghost" 
+                className="w-full flex items-center justify-center gap-2 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-300"
+              >
+                <History className="h-5 w-5" />
+                <span>Orders</span>
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={() => {
+                setTheme(theme === "dark" ? "light" : "dark");
+                setIsMenuOpen(false);
+              }}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5 text-yellow-400" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+              <span>Toggle {theme === "dark" ? "Light" : "Dark"} Mode</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </nav>
   );
-}
+};
+
+export default Navbar;
