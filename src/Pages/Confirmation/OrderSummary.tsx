@@ -1,17 +1,27 @@
-import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@Components/Card/Card";
 import { motion } from "framer-motion";
+import { CircleDollarSign, Receipt, ShoppingBag, Truck } from "lucide-react";
+import React from "react";
+import { ConfirmationComponent } from "./Interface";
 import { OrderSummaryItem } from "./OrderSummaryItem";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@Components/Card/Card";
-import { Receipt, ShoppingBag, Truck, CircleDollarSign } from "lucide-react";
 
-
+type OrderSummaryProps = Pick<
+  ConfirmationComponent,
+  "items" | "subtotal" | "shippingCost" | "tax" | "total"
+>;
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
   items,
   subtotal,
   shippingCost,
   tax,
-  total
+  total,
 }) => {
   return (
     <Card className="shadow-lg border-t border-l border-white/20 overflow-hidden h-full hover:shadow-xl transition-shadow duration-300 group">
@@ -20,9 +30,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           <Receipt className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
           Order Summary
         </CardTitle>
-        <CardDescription>
-          Review your order details
-        </CardDescription>
+        <CardDescription>Review your order details</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         <div className="space-y-4 mb-6">
@@ -31,7 +39,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.4 }}
@@ -63,7 +71,9 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <Receipt className="h-4 w-4 text-primary" />
               Total
             </span>
-            <span className="text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">${total.toFixed(2)}</span>
+            <span className="text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+              ${total.toFixed(2)}
+            </span>
           </div>
         </motion.div>
       </CardContent>

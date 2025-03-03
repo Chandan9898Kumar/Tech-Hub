@@ -1,12 +1,12 @@
 import { Button } from "@Components/Button/ButtonHeader";
 import { motion } from "framer-motion";
 import {
-    ArrowLeft,
-    CheckCircle,
-    Clock,
-    PartyPopper,
-    Share2,
-    ShoppingBag,
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  PartyPopper,
+  Share2,
+  ShoppingBag,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,12 +17,12 @@ import { OrderSummary } from "./OrderSummary";
 import { OrderTimeline } from "./OrderTimeline";
 import { PaymentInformation } from "./PaymentInformation";
 import { ShippingInformation } from "./ShippingInformation";
-
+import { ConfirmationComponent } from "./Interface";
 
 const Confirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [orderData, setOrderData] = useState<null>(null);
+  const [orderData, setOrderData] = useState<ConfirmationComponent | null>();
   const [loaded, setLoaded] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
@@ -62,8 +62,6 @@ const Confirmation = () => {
       clearInterval(interval);
     };
   }, [location.state]);
-
-  console.log(location, "location >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
   if (!orderData) {
     return (
@@ -180,7 +178,7 @@ const Confirmation = () => {
           className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8"
         >
           <div className="col-span-1 md:col-span-4">
-          <OrderTimeline 
+            <OrderTimeline
               activeStep={activeStep}
               orderDate={orderData.orderDate}
               estimatedDelivery={orderData.estimatedDelivery}
@@ -195,7 +193,7 @@ const Confirmation = () => {
             transition={{ delay: 0.4, duration: 0.5 }}
             className="md:col-span-2"
           >
-            <OrderSummary 
+            <OrderSummary
               items={orderData.items}
               subtotal={orderData.subtotal}
               shippingCost={orderData.shippingCost}
@@ -212,13 +210,12 @@ const Confirmation = () => {
           >
             <ShippingInformation shippingAddress={orderData.shippingAddress} />
             <PaymentInformation paymentMethod={orderData.paymentMethod} />
-            <DeliveryInformation 
+            <DeliveryInformation
               shippingMethod={orderData.shippingMethod}
               estimatedDelivery={orderData.estimatedDelivery}
             />
           </motion.div>
         </div>
-
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

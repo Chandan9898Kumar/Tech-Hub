@@ -1,11 +1,23 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import React from "react";
+import { Item } from "./Interface";
 
+interface CartItems extends Item {
+  quantity: number;
+}
 
-export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({ item, index }) => {
+interface OrderSummaryItemProps {
+  item: CartItems;
+  index: number;
+}
+
+export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({
+  item,
+  index,
+}) => {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
@@ -19,7 +31,9 @@ export const OrderSummaryItem: React.FC<OrderSummaryItemProps> = ({ item, index 
         />
       </div>
       <div className="flex-1">
-        <h3 className="font-medium hover:text-primary transition-colors">{item.name}</h3>
+        <h3 className="font-medium hover:text-primary transition-colors">
+          {item.name}
+        </h3>
         <p className="text-sm text-muted-foreground">
           Quantity: {item.quantity}
         </p>

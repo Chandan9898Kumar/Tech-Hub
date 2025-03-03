@@ -1,11 +1,25 @@
-
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@Components/Card/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@Components/Card/Card";
 import { CreditCard, Shield } from "lucide-react";
+import React from "react";
+import { PaymentMethod } from "./Interface";
 
+interface PaymentInformationProps {
+  paymentMethod: PaymentMethod;
+}
 
 // Component to render the payment method icon
-const PaymentMethodIcon = ({ type, className }: { type: string, className?: string }) => {
+const PaymentMethodIcon = ({
+  type,
+  className,
+}: {
+  type: string;
+  className?: string;
+}) => {
   switch (type) {
     case "credit":
       return <CreditCard className={className} />;
@@ -20,8 +34,9 @@ const PaymentMethodIcon = ({ type, className }: { type: string, className?: stri
   }
 };
 
-
-export const PaymentInformation: React.FC<PaymentInformationProps> = ({ paymentMethod }) => {
+export const PaymentInformation: React.FC<PaymentInformationProps> = ({
+  paymentMethod,
+}) => {
   return (
     <Card className="shadow-lg border-t border-l border-white/20 overflow-hidden hover:shadow-xl transition-shadow duration-300 hover:border-primary/20 group">
       <CardHeader className="bg-gradient-to-r from-primary/20 to-secondary/20 p-6 group-hover:from-primary/30 group-hover:to-secondary/30 transition-all duration-300">
@@ -33,7 +48,10 @@ export const PaymentInformation: React.FC<PaymentInformationProps> = ({ paymentM
       <CardContent className="p-6">
         <div className="space-y-3">
           <p className="font-medium flex items-center gap-2">
-            <PaymentMethodIcon type={paymentMethod.type} className="h-4 w-4 text-primary/80" />
+            <PaymentMethodIcon
+              type={paymentMethod.type}
+              className="h-4 w-4 text-primary/80"
+            />
             {paymentMethod.label}
           </p>
           {paymentMethod.lastFourDigits && (

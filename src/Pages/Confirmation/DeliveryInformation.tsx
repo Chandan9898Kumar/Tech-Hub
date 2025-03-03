@@ -1,24 +1,31 @@
-
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@Components/Card/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@Components/Card/Card";
 import { Truck, Package, Calendar, Timer, MapPin } from "lucide-react";
+import { ShippingMethods } from "./Interface";
 
-
-
+interface DeliveryInformationProps {
+  shippingMethod: ShippingMethods;
+  estimatedDelivery: string;
+}
 
 export const DeliveryInformation: React.FC<DeliveryInformationProps> = ({
   shippingMethod,
-  estimatedDelivery
+  estimatedDelivery,
 }) => {
   // Helper function to get estimated delivery date
   const getEstimatedDeliveryDate = () => {
     const date = new Date();
     // Add days based on shipping method
     date.setDate(date.getDate() + (shippingMethod.id === "express" ? 2 : 5));
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     }).format(date);
   };
 
@@ -44,10 +51,12 @@ export const DeliveryInformation: React.FC<DeliveryInformationProps> = ({
             <Timer className="h-4 w-4 text-primary/80" />
             Delivery time: {estimatedDelivery}
           </p>
-          
+
           <div className="mt-3 pt-3 border-t flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary animate-bounce" />
-            <span className="text-sm text-primary/80">Track shipment updates</span>
+            <span className="text-sm text-primary/80">
+              Track shipment updates
+            </span>
           </div>
         </div>
       </CardContent>
