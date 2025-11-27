@@ -93,10 +93,13 @@ const Cart = createSlice({
       state.totalQuantity = totals.quantity;
       state.totalAmount = totals.amount;
     },
+    resetCart(){
+      return initialState;
+    }
   },
 });
 
-export const { addItemToCart, updateCartQuantity, removeCartItem } =
+export const { addItemToCart, updateCartQuantity, removeCartItem, resetCart } =
   Cart.actions;
 // This is the action creator function that will be used to dispatch actions to the Redux store.
 export default Cart.reducer;

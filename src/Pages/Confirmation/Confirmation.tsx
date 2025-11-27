@@ -18,7 +18,8 @@ import { OrderTimeline } from "./OrderTimeline";
 import { PaymentInformation } from "./PaymentInformation";
 import { ShippingInformation } from "./ShippingInformation";
 import { ConfirmationComponent } from "./Interface";
-
+import { resetCart } from "../../Redux/AddToCart/AddToCart";
+import { useAppDispatch } from "../../Redux/Store";
 const Confirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const Confirmation = () => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
-
+  const dispatch= useAppDispatch()
   useEffect(() => {
     // Simulate loading and step progression
     const timer = setTimeout(() => {
@@ -47,6 +48,7 @@ const Confirmation = () => {
 
     if (location?.state) {
       setOrderData(location.state);
+      dispatch(resetCart())
     }
     // Step progression animation
     const interval = setInterval(() => {
@@ -61,7 +63,7 @@ const Confirmation = () => {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, [location.state]);
+  }, [location.state,dispatch]);
 
   if (!orderData) {
     return (
