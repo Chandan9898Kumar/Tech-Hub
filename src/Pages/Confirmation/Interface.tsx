@@ -6,6 +6,7 @@ export interface Item {
   description: string;
   category: string;
   details: string[];
+  quantity: number;
 }
 
 export interface PaymentMethod {

@@ -21,8 +21,9 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"], // Include necessary library files
 
     // Module Resolution
-    "moduleResolution": "Node", // Use Node.js style module resolution
+    "moduleResolution": "bundler", // Use bundler module resolution strategy
     "baseUrl": "./", // Base directory for module resolution
+    "ignoreDeprecations": "5.0", // Silence deprecation warnings for TypeScript 5.0
     "esModuleInterop": true, // Better interop between different module systems
     "allowSyntheticDefaultImports": true, // Allow default imports from modules without exports
 
