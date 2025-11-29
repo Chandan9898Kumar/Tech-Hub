@@ -8,7 +8,7 @@ import {
   Share2,
   ShoppingBag,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { ConfettiEffect } from "./ConfettiEffect";
@@ -20,6 +20,8 @@ import { ShippingInformation } from "./ShippingInformation";
 import { ConfirmationComponent } from "./Interface";
 import { resetCart } from "../../Redux/AddToCart/AddToCart";
 import { useAppDispatch } from "../../Redux/Store";
+import { addToHistory } from "../../Redux/Orders/OrderHistory";
+
 const Confirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,7 +29,9 @@ const Confirmation = () => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
-  const dispatch= useAppDispatch()
+  const dispatch = useAppDispatch();
+  const orderAddedRef = useRef<boolean>(false);
+
   useEffect(() => {
     // Simulate loading and step progression
     const timer = setTimeout(() => {
@@ -46,9 +50,11 @@ const Confirmation = () => {
       });
     }, 800);
 
-    if (location?.state) {
+    if (location?.state && !orderAddedRef.current) {
       setOrderData(location.state);
-      dispatch(resetCart())
+      dispatch(addToHistory(location.state));
+      dispatch(resetCart());
+      orderAddedRef.current = true;
     }
     // Step progression animation
     const interval = setInterval(() => {
@@ -63,7 +69,7 @@ const Confirmation = () => {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, [location.state,dispatch]);
+  }, [location.state, dispatch]);
 
   if (!orderData) {
     return (

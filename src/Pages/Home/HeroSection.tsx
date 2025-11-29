@@ -1,14 +1,8 @@
 // Pages/Home/HeroSection.tsx
 import { motion } from "framer-motion";
-import SearchBar from "@/Components/SearchBar/SearchBar";
 import { memo } from "react";
 
-interface HeroSectionProps {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-}
-
-const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
+const HeroSection = () => {
   return (
     <div className="relative  mb-10">
       <div
@@ -40,7 +34,7 @@ const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
           </p>
         </motion.div>
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -62,7 +56,7 @@ const HeroSection = ({ searchQuery, onSearchChange }: HeroSectionProps) => {
               </motion.div>
             )}
           </div>
-        </motion.div>
+        </motion.div> */}
       </div>
     </div>
   );

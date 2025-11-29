@@ -2,10 +2,11 @@ import { configureStore } from '@reduxjs/toolkit'
 import type { TypedUseSelectorHook } from "react-redux";
 import { useDispatch, useSelector } from "react-redux";
 import AddToCart from "./AddToCart/AddToCart";
-
+import CartHistory from './Orders/OrderHistory'
 const store = configureStore({
   reducer: {
     cart: AddToCart,
+    history:CartHistory
   },
 });
 

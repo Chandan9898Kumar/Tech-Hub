@@ -1,12 +1,6 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import { IconButton, Typography } from "@material-tailwind/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FC, memo } from "react";
-const Style = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-} as const;
+import { FC, memo, useState, useEffect } from "react";
 
 const StyleDiv = {
   display: "flex",
@@ -27,6 +21,16 @@ const Pagination: FC<PaginationProps> = ({
   activePage,
   onPageChange,
 }) => {
+  const [isDark, setIsDark] = useState(
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
   const next = (): void => {
     if (activePage <= 10) {
       onPageChange(activePage + 1);
@@ -41,27 +45,22 @@ const Pagination: FC<PaginationProps> = ({
 
   return (
     <div className="flex items-center gap-8" style={StyleDiv}>
-      <IconButton
-        size="sm"
-        variant="outlined"
+      <button
         onClick={prev}
         disabled={activePage === 1}
-        style={Style}
-        placeholder=""
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
+        className={`p-2 rounded border ${
+          isDark
+            ? "border-gray-600 text-gray-300 hover:bg-gray-800 disabled:text-gray-600"
+            : "border-gray-400 text-gray-800 hover:bg-gray-50 disabled:text-gray-400"
+        } transition-colors disabled:cursor-not-allowed`}
       >
         <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" />
-      </IconButton>
-      <Typography
-        color="gray"
-        className="font-normal"
-        placeholder=""
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
+      </button>
+      <div
+        className={`font-normal ${isDark ? "text-gray-300" : "text-gray-800"}`}
       >
         Page{" "}
-        <strong className="text-gray-900">
+        <strong className={isDark ? "text-grey" : "text-black"}>
           <AnimatePresence mode="wait">
             <motion.span
               key={activePage}
@@ -74,20 +73,22 @@ const Pagination: FC<PaginationProps> = ({
             </motion.span>
           </AnimatePresence>
         </strong>{" "}
-        of <strong className="text-gray-900">{totalPage}</strong>
-      </Typography>
-      <IconButton
-        size="sm"
-        variant="outlined"
+        of{" "}
+        <strong className={isDark ? "text-grey" : "text-black"}>
+          {totalPage}
+        </strong>
+      </div>
+      <button
         onClick={next}
         disabled={activePage === totalPage}
-        style={Style}
-        placeholder=""
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
+        className={`p-2 rounded border ${
+          isDark
+            ? "border-gray-600 text-gray-300 hover:bg-gray-800 disabled:text-gray-600"
+            : "border-gray-400 text-gray-800 hover:bg-gray-50 disabled:text-gray-400"
+        } transition-colors disabled:cursor-not-allowed`}
       >
         <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-      </IconButton>
+      </button>
     </div>
   );
 };
